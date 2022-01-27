@@ -1,11 +1,6 @@
 const router = require('koa-router')()
+const { test } = require('../controllers/test')
 
-router.get('/', async (ctx, next) => {
-  ctx.body = {
-    message: 'Hello World',
-    code: 200
-  }
-})
-
+router.get('/home', test)
 
 module.exports = router
