@@ -5,8 +5,13 @@ const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
+const cors = require("koa2-cors")
+
+app.use(cors())
 
 const index = require('./routes/index')
+// 引入注册方法
+const login = require("./routes/loginRoute")
 
 // error handler
 onerror(app)
@@ -29,6 +34,7 @@ app.use(async (ctx, next) => {
 
 // routes
 app.use(index.routes(), index.allowedMethods())
+app.use(login.routes(), login.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
