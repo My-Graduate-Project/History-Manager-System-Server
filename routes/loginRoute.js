@@ -1,7 +1,11 @@
 const router = require('koa-router')()
 // 引入方法
-const { register } = require('../controllers/loginCtrl')
+const { registerCtrl, loginCtrl } = require('../controllers/loginCtrl')
 
-router.post('/register', register)
+// 1. 用户注册
+router.post('/register', registerCtrl)
+
+// 2. 用户登录
+router.post('/login', loginCtrl)
 
 module.exports = router
