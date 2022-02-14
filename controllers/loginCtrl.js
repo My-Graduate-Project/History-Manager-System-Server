@@ -57,7 +57,6 @@ module.exports.registerCtrl = async (ctx, next) => {
 module.exports.loginCtrl = async (ctx, next) => {
   // 1. 获取用户名 密码
   const { username, password } = ctx.request.body
-
   // 用户查询
   const result = await loginModel(username, cryptoPaddword(password + secret))
   // 用户是否存在

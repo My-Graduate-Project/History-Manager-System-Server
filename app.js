@@ -10,11 +10,12 @@ const jwt = require("koa-jwt");
 
 app.use(cors())
 
-const index = require('./routes/index')
 // 引入登录/注册方法
 const login = require("./routes/loginRoute")
 // 引入 个人信息
 const user = require("./routes/userRoute")
+// 引入 文章
+const article = require("./routes/articleRoute")
 
 // error handler
 onerror(app)
@@ -34,7 +35,7 @@ app.use(function (ctx, next) {
 // 设置哪些接口需要在token   
 // jwt(加密信息)  加密信息一定要跟token生成使用加密字符串保持一致
 // unless 排除哪些不需要在请求带token
-app.use(jwt({ secret: "history_ms" }).unless({ path: [/^\/register/, /^\/login/] }));
+// app.use(jwt({ secret: "history_ms" }).unless({ path: [/^\/register/, /^\/login/] }));
 
 // middlewares
 app.use(bodyparser({
@@ -53,9 +54,9 @@ app.use(async (ctx, next) => {
 })
 
 // routes
-app.use(index.routes(), index.allowedMethods())
 app.use(login.routes(), login.allowedMethods())
 app.use(user.routes(), user.allowedMethods())
+app.use(article.routes(), article.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
