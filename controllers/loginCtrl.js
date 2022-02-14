@@ -65,7 +65,7 @@ module.exports.loginCtrl = async (ctx, next) => {
     const token = jwt.sign({
       username,
       password
-    }, jwtSecret, { expiresIn: '1h' });
+    }, jwtSecret, { expiresIn: '12h' });
     ctx.body = {
       status: 200,
       data: {
