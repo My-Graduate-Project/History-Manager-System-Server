@@ -72,15 +72,13 @@ const getUserName = async (id) => {
 // 封装函数 -- 修改用户ID
 const changeUserId = (articleList) => {
   return new Promise((resolve, reject) => {
-    // 遍历数组对象
-    articleList.forEach(async (item, index) => {
-      // sql模块 -- 获取用户名
-      const userName = await getUserName(item.user_id)
-      articleList[index].user_id = userName
-
-      console.log(articleList)
+    articleList.forEach(item => {
+      Promise.all([getUserName(item.user_id)]).then(res => {
+        // console.log(res)
+        item.user_id = res[0]
+        resolve(articleList)
+      })
     })
-    return resolve(articleList)
   })
 }
 
@@ -110,7 +108,7 @@ module.exports.showArticleListCtrl = async (ctx, next) => {
         code: 200,
         privilege: "管理员",
         msg: "文章列表展示成功",
-        // data: allArticleList
+        data: articleListResult
       }
     }
   }
