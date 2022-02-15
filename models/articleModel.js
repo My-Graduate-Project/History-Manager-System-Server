@@ -1,7 +1,8 @@
 // 引入 mysql 模块
 const { query } = require("../configs/mysql")
 
-// 1. 用户添加文章基本内容 -- sql模块
+/** 添加文章 */
+// 1.1 用户添加文章基本内容 -- sql模块
 module.exports.addArticleDetailModel = async (title, description, category_id, views, article_status, created_time, is_deleted, user_id) => {
   // 创建 sql 语句
   const sql = `
@@ -12,14 +13,21 @@ module.exports.addArticleDetailModel = async (title, description, category_id, v
   return await query(sql)
 }
 
-// 1.1 获取文章ID -- sql模块
+// 1.2 获取文章ID -- sql模块
 module.exports.getArticleIdModel = async (title) => {
   // 创建 sql 语句
   const sql = ` SELECT id FROM articles where title = '${title}'`
   return await query(sql)
 }
 
-// 2. 用户添加文章内容 -- sql模块
+// 1.3 获取当前用户ID -- sql模块
+module.exports.getUserIdModel = async (username) => {
+  // 创建 sql 语句
+  const sql = ` SELECT id FROM admin where username = '${username}'`
+  return await query(sql)
+}
+
+// 1.4 用户添加文章内容 -- sql模块
 module.exports.addArticleContentModel = async (id, content) => {
   // 创建 sql 语句
   const sql = `
@@ -29,3 +37,29 @@ module.exports.addArticleContentModel = async (id, content) => {
   ('${id}','${content}')`
   return await query(sql)
 }
+// -------------------------------------------------- //
+
+/** 展示文章列表信息 */
+// 2.1 获取用户的权限 -- sql模块
+module.exports.getUserPermissionModel = async (username) => {
+  // 创建 sql 语句
+  const sql = ` SELECT privilege FROM admin where username = '${username}'`
+  return await query(sql)
+}
+
+// 2.2 获取文章列表(管理员) -- sql模块
+module.exports.getArticleAllListModel = async () => {
+  // 创建 sql 语句
+  const sql = ` SELECT * FROM articles`
+  return await query(sql)
+}
+
+// 2.3 通过获取到的用户ID展示用户姓名(管理员) -- sql模块
+module.exports.getUserNameModel = async (user_id) => {
+  // 创建 sql 语句
+  const sql = ` SELECT id,username FROM admin where id = '${user_id}'`
+  return await query(sql)
+}
+
+// 2.2 根据对应的用户ID获取文章列表 -- sql模块
+// module.exports.showArticleListModel = async (user_id) => { }
