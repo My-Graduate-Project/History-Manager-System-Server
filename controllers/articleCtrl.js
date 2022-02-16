@@ -9,7 +9,9 @@ const {
   getArticleAllListModel,
   getUserNameModel,
   showArticleNormalUserIDModel,
-  showArticleNormalUserArticlesModel
+  showArticleNormalUserArticlesModel,
+  changeIsDeletedModel,
+  changeArticleStatusResultModel
 } = require("../models/articleModel")
 
 // 添加文章功能
@@ -63,35 +65,6 @@ module.exports.addArticleCtrl = async (ctx, next) => {
   }
 }
 
-// 封装函数 -- 获取用户名
-const getUserName = async (id) => {
-  // sql模块 -- 获取用户名
-  const userInfo = await getUserNameModel(id)
-  // console.log(...userInfo)
-  return {
-    id: userInfo[0].id,
-    username: userInfo[0].username
-  }
-}
-// 封装函数 -- 修改用户ID
-const changeUserId = (articleList) => {
-  return new Promise((resolve, reject) => {
-    try {
-      articleList.forEach((item, index) => {
-        console.log(index)
-        Promise.all([getUserName(item.user_id)]).then(res => {
-          if (item.user_id === res[0].id) {
-            item.user_id = res[0].username
-            resolve(articleList)
-          }
-        })
-      })
-    } catch (error) {
-      reject(error, "错误信息")
-    }
-  })
-}
-
 // 展示文章列表
 module.exports.showArticleListCtrl = async (ctx, next) => {
   // 获取token
@@ -108,7 +81,33 @@ module.exports.showArticleListCtrl = async (ctx, next) => {
   if (userPermission[0].privilege === "管理员") {
     // sql模块 ① -- 查询所有的文章列表
     const articleList = await getArticleAllListModel();
-    console.log(articleList)
+    // console.log(articleList)
+    // 获取所有用户名
+    const getAllUserNameList = await getUserNameModel();
+    console.log(getAllUserNameList)
+    // 遍历所有文章列表
+    articleList.forEach((item, index) => {
+      getAllUserNameList.forEach((subItem, index) => {
+        if (item.user_id === subItem.id) {
+          item.user_name = subItem.username
+        }
+      })
+    })
+    // 判断获取列表中是否有数据
+    if (articleList.length > 0) {
+      ctx.body = {
+        code: 200,
+        privilege: "管理员",
+        msg: "文章列表展示成功",
+        data: articleList
+      }
+    } else {
+      ctx.body = {
+        code: 400,
+        privilege: "管理员",
+        msg: "未找到文章数据",
+      }
+    }
   }
   // 普通用户只能查看自己的文章列表
   if (userPermission[0].privilege === "普通用户") {
@@ -141,4 +140,60 @@ module.exports.showArticleListCtrl = async (ctx, next) => {
 
 }
 
-module.exports.removeArticleCtrl = async (ctx, next) => { }
+// 删除文章
+module.exports.removeArticleCtrl = async (ctx, next) => {
+  // 获取要删除的ID
+  const { id } = ctx.request.body;
+  // sql模块 -- 根据要删除的ID修改属性
+  const removeData = await changeIsDeletedModel(id);
+  // 判断
+  if (removeData) {
+    ctx.body = {
+      code: 200,
+      msg: "删除文章成功"
+    }
+  } else {
+    ctx.body = {
+      code: 400,
+      msg: "删除文章失败"
+    }
+  }
+}
+
+// 修改文章状态
+module.exports.changeArticleStatusCtrl = async (ctx, next) => {
+  // 获取token
+  const token = ctx.header.authorization
+  // 解析token,获取用户信息
+  let result = await payload(token);
+  // console.log(result)
+  // sql模块 -- 获取用户权限
+  const userPermission = await getUserPermissionModel(result.username)
+  if (userPermission[0].privilege === "管理员") {
+    const { id, article_status } = ctx.request.body;
+    // console.log(id, article_status)
+    // sql模块 -- 根据对应文章ID修改该状态
+    const changeArticleStatusResult = await changeArticleStatusResultModel(id, article_status);
+    // console.log(changeArticleStatusResult)
+    // 判断
+    if (changeArticleStatusResult) {
+      ctx.body = {
+        code: 200,
+        privilege: "管理员",
+        msg: "修改文章状态成功"
+      }
+    } else {
+      ctx.body = {
+        code: 400,
+        privilege: "管理员",
+        msg: "修改文章状态失败"
+      }
+    }
+  } else {
+    ctx.body = {
+      code: 400,
+      privilege: "普通用户",
+      msg: "非管理员不可修改文章状态"
+    }
+  }
+}

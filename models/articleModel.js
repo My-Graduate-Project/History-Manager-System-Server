@@ -57,23 +57,38 @@ module.exports.getArticleAllListModel = async () => {
 // 2.3 通过获取到的用户ID展示用户姓名(管理员) -- sql模块
 module.exports.getUserNameModel = async (user_id) => {
   // 创建 sql 语句
-  const sql = ` SELECT id,username FROM admin where id = '${user_id}'`
+  const sql = ` SELECT id,username FROM admin`
   return await query(sql)
 }
 
-// 2.4 根据对应的用户ID获取文章列表 -- sql模块
-// module.exports.showArticleListModel = async (user_id) => { }
-
-// 2.5 根据普通用户的用户名查找对应的ID
+// 2.4 根据普通用户的用户名查找对应的ID
 module.exports.showArticleNormalUserIDModel = async (username) => {
   // 创建 sql 语句
   const sql = `SELECT id FROM admin WHERE admin.username ='${username}'`
   return await query(sql)
 }
 
-// 2.6 获取到用户名ID查找用户的文章
+// 2.5 获取到用户名ID查找用户的文章
 module.exports.showArticleNormalUserArticlesModel = async (id) => {
   // 创建 sql 语句
   const sql = `SELECT * FROM articles WHERE user_id=${id}`
+  return await query(sql)
+}
+// -------------------------------------------------- //
+
+/** 删除指定文章 -- 修改 is_deleted 为 true */
+// 3.1 根据文章ID删除
+module.exports.changeIsDeletedModel = async (id) => {
+  // 创建 sql 语句
+  const sql = `UPDATE articles SET is_deleted='true' WHERE id=${id}`
+  return await query(sql)
+}
+// -------------------------------------------------- //
+
+/** 修改指定文章状态 -- 修改 article_status 为 （'pass','auditing','fail'） */
+// 4.1 根据文章ID修改状态
+module.exports.changeArticleStatusResultModel = async (id, status) => {
+  // 创建 sql 语句
+  const sql = `UPDATE articles SET article_status='${status}' WHERE id=${id}`
   return await query(sql)
 }
