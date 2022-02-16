@@ -61,5 +61,19 @@ module.exports.getUserNameModel = async (user_id) => {
   return await query(sql)
 }
 
-// 2.2 根据对应的用户ID获取文章列表 -- sql模块
+// 2.4 根据对应的用户ID获取文章列表 -- sql模块
 // module.exports.showArticleListModel = async (user_id) => { }
+
+// 2.5 根据普通用户的用户名查找对应的ID
+module.exports.showArticleNormalUserIDModel = async (username) => {
+  // 创建 sql 语句
+  const sql = `SELECT id FROM admin WHERE admin.username ='${username}'`
+  return await query(sql)
+}
+
+// 2.6 获取到用户名ID查找用户的文章
+module.exports.showArticleNormalUserArticlesModel = async (id) => {
+  // 创建 sql 语句
+  const sql = `SELECT * FROM articles WHERE user_id=${id}`
+  return await query(sql)
+}

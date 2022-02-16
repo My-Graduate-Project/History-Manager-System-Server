@@ -7,7 +7,9 @@ const {
   addArticleContentModel,
   getUserPermissionModel,
   getArticleAllListModel,
-  getUserNameModel
+  getUserNameModel,
+  showArticleNormalUserIDModel,
+  showArticleNormalUserArticlesModel
 } = require("../models/articleModel")
 
 // 添加文章功能
@@ -64,21 +66,29 @@ module.exports.addArticleCtrl = async (ctx, next) => {
 // 封装函数 -- 获取用户名
 const getUserName = async (id) => {
   // sql模块 -- 获取用户名
-  const userName = await getUserNameModel(id)
-  return new Promise((resolve, reject) => {
-    resolve(userName[0].username)
-  })
+  const userInfo = await getUserNameModel(id)
+  // console.log(...userInfo)
+  return {
+    id: userInfo[0].id,
+    username: userInfo[0].username
+  }
 }
 // 封装函数 -- 修改用户ID
 const changeUserId = (articleList) => {
   return new Promise((resolve, reject) => {
-    articleList.forEach(item => {
-      Promise.all([getUserName(item.user_id)]).then(res => {
-        // console.log(res)
-        item.user_id = res[0]
-        resolve(articleList)
+    try {
+      articleList.forEach((item, index) => {
+        console.log(index)
+        Promise.all([getUserName(item.user_id)]).then(res => {
+          if (item.user_id === res[0].id) {
+            item.user_id = res[0].username
+            resolve(articleList)
+          }
+        })
       })
-    })
+    } catch (error) {
+      reject(error, "错误信息")
+    }
   })
 }
 
@@ -88,29 +98,47 @@ module.exports.showArticleListCtrl = async (ctx, next) => {
   const token = ctx.header.authorization
   // 解析token,获取用户信息
   let result = await payload(token);
+  // console.log(result)
   // sql模块 -- 获取用户权限
   const userPermission = await getUserPermissionModel(result.username)
   // 用来接收返回的数据
   // const getUserArticleListData = []
   // 条件判断 -- 判断是否是管理员
-  // 管理员可以查看所有的文章列表
-  // 普通用户只能查看自己的文章列表
+  // 管理员可以查看所有的文章列表（bug）
   if (userPermission[0].privilege === "管理员") {
     // sql模块 ① -- 查询所有的文章列表
     const articleList = await getArticleAllListModel();
-    // 遍历文章列表并将ID转换为用户名
-    const articleListResult = await changeUserId(articleList)
-    // console.log(articleListResult)
-    // 判断是否查询成功
-    next()
-    if (articleListResult.length > 0) {
+    console.log(articleList)
+  }
+  // 普通用户只能查看自己的文章列表
+  if (userPermission[0].privilege === "普通用户") {
+    // console.log(userPermission);
+    // 获取该用户的ID
+    const getNormalUserId = await showArticleNormalUserIDModel(result.username)
+    // console.log(getNormalUserId[0].id)
+    // 通过ID获取到对应用户的文章列表
+    const getNormalUserArticles = await showArticleNormalUserArticlesModel(getNormalUserId[0].id)
+    // 遍历所有的数据并在其中添加该用户姓名
+    getNormalUserArticles.forEach(item => {
+      item.user_name = result.username
+    })
+    // 判断该用户是否有数据
+    if (getNormalUserArticles.length > 0) {
       ctx.body = {
         code: 200,
-        privilege: "管理员",
+        privilege: "普通用户",
         msg: "文章列表展示成功",
-        data: articleListResult
+        data: getNormalUserArticles
+      }
+    } else {
+      ctx.body = {
+        code: 400,
+        privilege: "普通用户",
+        msg: "文章列表展示失败",
       }
     }
   }
 
 }
+
+module.exports.removeArticleCtrl = async (ctx, next) => { }
