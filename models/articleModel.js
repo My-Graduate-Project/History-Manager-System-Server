@@ -92,3 +92,10 @@ module.exports.changeArticleStatusResultModel = async (id, status) => {
   const sql = `UPDATE articles SET article_status='${status}' WHERE id=${id}`
   return await query(sql)
 }
+
+// 5.1 查找文章
+module.exports.findArticleModel = async (title, start, end) => {
+  // 创建 sql 语句
+  const sql = `SELECT * FROM articles WHERE title LIKE '%${title}%' AND created_time BETWEEN '${start}' AND '${end}'`
+  return await query(sql)
+}

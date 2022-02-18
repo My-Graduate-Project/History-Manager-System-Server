@@ -4,7 +4,8 @@ const {
   addArticleCtrl,
   showArticleListCtrl,
   removeArticleCtrl,
-  changeArticleStatusCtrl
+  changeArticleStatusCtrl,
+  findArticleCtrl
 } = require('../controllers/articleCtrl')
 
 // 1. 获取用户信息
@@ -15,6 +16,7 @@ router.post("/showArticleList", showArticleListCtrl)
 router.post("/removeArticle", removeArticleCtrl)
 // 4. 修改文章状态
 router.post("/changeArticleStatus", changeArticleStatusCtrl)
-
+// 5. 查找文章
+router.post("/findArticle", findArticleCtrl)
 
 module.exports = router

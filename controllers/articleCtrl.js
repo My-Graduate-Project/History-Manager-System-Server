@@ -11,7 +11,8 @@ const {
   showArticleNormalUserIDModel,
   showArticleNormalUserArticlesModel,
   changeIsDeletedModel,
-  changeArticleStatusResultModel
+  changeArticleStatusResultModel,
+  findArticleModel
 } = require("../models/articleModel")
 
 // 添加文章功能
@@ -191,6 +192,38 @@ module.exports.changeArticleStatusCtrl = async (ctx, next) => {
       code: 400,
       privilege: "普通用户",
       msg: "非管理员不可修改文章状态"
+    }
+  }
+}
+
+// 查找文章
+module.exports.findArticleCtrl = async (ctx, next) => {
+  // console.log(userPermission)
+  // 查询文章
+  const { title, dateStart, dateEnd } = ctx.request.body;
+  // sql模块 -- 查询文章
+  const findArticleResult = await findArticleModel(title, dateStart, dateEnd);
+  // console.log(findArticleResult)
+  const getAllUserNameList = await getUserNameModel();
+  // 遍历所有文章列表
+  findArticleResult.forEach((item, index) => {
+    getAllUserNameList.forEach((subItem, subIndex) => {
+      if (item.user_id === subItem.id) {
+        item.user_name = subItem.username
+      }
+    })
+  })
+  // 判断
+  if (findArticleResult.length > 0) {
+    ctx.body = {
+      code: 200,
+      msg: "查找文章成功",
+      data: findArticleResult
+    }
+  } else {
+    ctx.body = {
+      code: 400,
+      msg: "查找文章失败"
     }
   }
 }
