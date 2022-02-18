@@ -3,13 +3,13 @@ const { query } = require("../configs/mysql")
 
 /** 添加文章 */
 // 1.1 用户添加文章基本内容 -- sql模块
-module.exports.addArticleDetailModel = async (title, description, category_id, views, article_status, created_time, is_deleted, user_id) => {
+module.exports.addArticleDetailModel = async (title, description, category_id, views, article_status, created_time, user_id) => {
   // 创建 sql 语句
   const sql = `
   INSERT INTO articles
-  (title,description,category_id,views,article_status,created_time,is_deleted,user_id)
+  (title,description,category_id,views,article_status,created_time,user_id)
   values
-  ('${title}','${description}','${category_id}','${views}','${article_status}','${created_time}','${is_deleted}','${user_id}')`
+  ('${title}','${description}','${category_id}','${views}','${article_status}','${created_time}','${user_id}')`
   return await query(sql)
 }
 
@@ -48,9 +48,9 @@ module.exports.getUserPermissionModel = async (username) => {
 }
 
 // 2.2 获取文章列表(管理员) -- sql模块
-module.exports.getArticleAllListModel = async () => {
+module.exports.getArticleAllListModel = async (pageNum, pageSize) => {
   // 创建 sql 语句
-  const sql = ` SELECT * FROM articles`
+  const sql = ` SELECT * FROM articles LIMIT ${pageNum}, ${pageSize}`
   return await query(sql)
 }
 
@@ -69,9 +69,9 @@ module.exports.showArticleNormalUserIDModel = async (username) => {
 }
 
 // 2.5 获取到用户名ID查找用户的文章
-module.exports.showArticleNormalUserArticlesModel = async (id) => {
+module.exports.showArticleNormalUserArticlesModel = async (id, pageNum, pageSize) => {
   // 创建 sql 语句
-  const sql = `SELECT * FROM articles WHERE user_id=${id}`
+  const sql = `SELECT * FROM articles WHERE user_id=${id} LIMIT ${pageNum}, ${pageSize}`
   return await query(sql)
 }
 // -------------------------------------------------- //
@@ -80,7 +80,7 @@ module.exports.showArticleNormalUserArticlesModel = async (id) => {
 // 3.1 根据文章ID删除
 module.exports.changeIsDeletedModel = async (id) => {
   // 创建 sql 语句
-  const sql = `UPDATE articles SET is_deleted='true' WHERE id=${id}`
+  const sql = `UPDATE articles SET article_status='delete' WHERE id=${id}`
   return await query(sql)
 }
 // -------------------------------------------------- //

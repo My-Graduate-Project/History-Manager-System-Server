@@ -28,13 +28,12 @@ module.exports.addArticleCtrl = async (ctx, next) => {
     category_id,
     views,
     article_status,
-    created_time,
-    is_deleted,
-    user_id
+    created_time
   } = ctx.request.body
   // sql 模块 ① -- 获取当前用户的id
   const userId = await getUserIdModel(result.username)
   // sql模块 ② -- 添加文章的基本信息
+  // console.log(userId)
   const detail = await addArticleDetailModel(
     title,
     description,
@@ -42,7 +41,6 @@ module.exports.addArticleCtrl = async (ctx, next) => {
     views,
     article_status,
     created_time,
-    is_deleted,
     userId[0].id
   )
   // sql 模块 ③ -- 获取添加文章的id
@@ -69,30 +67,31 @@ module.exports.addArticleCtrl = async (ctx, next) => {
 module.exports.showArticleListCtrl = async (ctx, next) => {
   // 获取token
   const token = ctx.header.authorization
+  // 获取pageNum,pageSize
+  const { pageNum, pageSize } = ctx.request.body
   // 解析token,获取用户信息
   let result = await payload(token);
   // console.log(result)
   // sql模块 -- 获取用户权限
   const userPermission = await getUserPermissionModel(result.username)
-  // 用来接收返回的数据
-  // const getUserArticleListData = []
   // 条件判断 -- 判断是否是管理员
   // 管理员可以查看所有的文章列表（bug）
   if (userPermission[0].privilege === "管理员") {
     // sql模块 ① -- 查询所有的文章列表
-    const articleList = await getArticleAllListModel();
+    const articleList = await getArticleAllListModel(pageNum, pageSize);
     // console.log(articleList)
     // 获取所有用户名
     const getAllUserNameList = await getUserNameModel();
-    console.log(getAllUserNameList)
     // 遍历所有文章列表
     articleList.forEach((item, index) => {
-      getAllUserNameList.forEach((subItem, index) => {
+      getAllUserNameList.forEach((subItem, subIndex) => {
         if (item.user_id === subItem.id) {
           item.user_name = subItem.username
         }
       })
     })
+
+    // console.log(articleList)
     // 判断获取列表中是否有数据
     if (articleList.length > 0) {
       ctx.body = {
@@ -116,7 +115,7 @@ module.exports.showArticleListCtrl = async (ctx, next) => {
     const getNormalUserId = await showArticleNormalUserIDModel(result.username)
     // console.log(getNormalUserId[0].id)
     // 通过ID获取到对应用户的文章列表
-    const getNormalUserArticles = await showArticleNormalUserArticlesModel(getNormalUserId[0].id)
+    const getNormalUserArticles = await showArticleNormalUserArticlesModel(getNormalUserId[0].id, pageNum, pageSize)
     // 遍历所有的数据并在其中添加该用户姓名
     getNormalUserArticles.forEach(item => {
       item.user_name = result.username
@@ -171,10 +170,8 @@ module.exports.changeArticleStatusCtrl = async (ctx, next) => {
   const userPermission = await getUserPermissionModel(result.username)
   if (userPermission[0].privilege === "管理员") {
     const { id, article_status } = ctx.request.body;
-    // console.log(id, article_status)
     // sql模块 -- 根据对应文章ID修改该状态
     const changeArticleStatusResult = await changeArticleStatusResultModel(id, article_status);
-    // console.log(changeArticleStatusResult)
     // 判断
     if (changeArticleStatusResult) {
       ctx.body = {

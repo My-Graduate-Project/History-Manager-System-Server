@@ -10,7 +10,7 @@ const {
 // 1. 获取用户信息
 router.post('/addArticle', addArticleCtrl)
 // 2. 展示文章列表
-router.get("/showArticleList", showArticleListCtrl)
+router.post("/showArticleList", showArticleListCtrl)
 // 3. 删除文章
 router.post("/removeArticle", removeArticleCtrl)
 // 4. 修改文章状态
