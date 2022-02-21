@@ -99,3 +99,10 @@ module.exports.findArticleModel = async (title, start, end) => {
   const sql = `SELECT * FROM articles WHERE title LIKE '%${title}%' AND created_time BETWEEN '${start}' AND '${end}'`
   return await query(sql)
 }
+
+// 6.1 回显文章数据
+module.exports.echoArticleModel = async (id) => {
+  // 创建 sql 语句
+  const sql = `SELECT * FROM articles WHERE id=${id}`
+  return await query(sql)
+}

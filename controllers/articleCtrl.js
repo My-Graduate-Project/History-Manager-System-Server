@@ -12,7 +12,8 @@ const {
   showArticleNormalUserArticlesModel,
   changeIsDeletedModel,
   changeArticleStatusResultModel,
-  findArticleModel
+  findArticleModel,
+  echoArticleModel
 } = require("../models/articleModel")
 
 // 添加文章功能
@@ -224,6 +225,24 @@ module.exports.findArticleCtrl = async (ctx, next) => {
     ctx.body = {
       code: 400,
       msg: "查找文章失败"
+    }
+  }
+}
+
+// 回显文章数z
+module.exports.echoArticleCtrl = async (ctx, next) => {
+  // 获取文章ID
+  const { id } = ctx.request.body;
+
+  // sql模块 -- 根据文章ID获取文章数据
+  const echoArticleResult = await echoArticleModel(id);
+  // console.log(echoArticleResult)
+  // 判断
+  if (echoArticleResult.length > 0) {
+    ctx.body = {
+      code: 200,
+      msg: "回显文章成功",
+      data: echoArticleResult
     }
   }
 }
