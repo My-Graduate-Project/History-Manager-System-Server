@@ -11,9 +11,7 @@ const {
   deleteArtworkModel,
   updateArtworkStatusModel,
   echoArtworkModel,
-  searchArtworkTitleModel,
-  searchArtworkCreaterModel,
-  searchArtworkSubTitleModel
+  searchArtworkTitleModel
 } = require('../models/artWorkModel');
 // model -- article_status
 const {
@@ -97,7 +95,6 @@ module.exports.showArtworkCtrl = async (ctx, next) => {
     const artworkResult = await showAllArtworkListModel()
     // 获取对应用户发送的请求参数
     const getAllUserNameList = await getUserNameModel();
-    // console.log(getAllUserNameList)
     // 遍历所有文章列表
     artworkResult.forEach((item, index) => {
       getAllUserNameList.forEach((subItem, subIndex) => {
@@ -246,7 +243,8 @@ module.exports.echoArtworkCtrl = async (ctx, next) => {
 // 6. 查询画作信息
 module.exports.searchArtworkCtrl = async (ctx, next) => {
   // 获取要查找的画作名称、时间段
-  const { artworkTitle, artworkCreater, artworkSubTitle, startTime, endTime } = ctx.request.body;
+  const { artworkTitle, startTime, endTime } = ctx.request.body;
+  console.log(artworkTitle, startTime, endTime)
   // sql 模块 ① -- 查询画作信息
   const searchArtworkResult = await searchArtworkTitleModel(artworkTitle, startTime, endTime)
   // 判断
@@ -256,25 +254,11 @@ module.exports.searchArtworkCtrl = async (ctx, next) => {
       msg: '查询画作信息成功',
       data: searchArtworkResult
     }
-  }
-  // sql 模块 ② -- 查询画作信息
-  const searchArtworkResult2 = await searchArtworkCreaterModel(artworkCreater, startTime, endTime)
-  // 判断
-  if (searchArtworkResult2.length > 0) {
+  } else {
     return ctx.body = {
-      code: 200,
-      msg: '查询画作信息成功',
-      data: searchArtworkResult2
+      code: 400,
+      msg: '暂无画作信息'
     }
   }
-  // sql 模块 ③ -- 查询画作信息
-  const searchArtworkResult3 = await searchArtworkSubTitleModel(artworkSubTitle, startTime, endTime)
-  // 判断
-  if (searchArtworkResult3.length > 0) {
-    return ctx.body = {
-      code: 200,
-      msg: '查询画作信息成功',
-      data: searchArtworkResult3
-    }
-  }
+
 }

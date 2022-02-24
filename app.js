@@ -18,6 +18,8 @@ const user = require("./routes/userRoute")
 const article = require("./routes/articleRoute")
 // 引入 画作
 const artWork = require("./routes/artWorkRoute")
+// 引入 人物
+const character = require("./routes/characterRoute")
 
 // error handler
 onerror(app)
@@ -60,6 +62,7 @@ app.use(login.routes(), login.allowedMethods())
 app.use(user.routes(), user.allowedMethods())
 app.use(article.routes(), article.allowedMethods())
 app.use(artWork.routes(), artWork.allowedMethods())
+app.use(character.routes(), character.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {

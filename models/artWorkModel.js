@@ -117,20 +117,3 @@ module.exports.searchArtworkTitleModel = async (artworkTitle, start, end) => {
   // 返回
   return await query(sql)
 }
-
-// 6.2 搜索画作 -- 创作者
-module.exports.searchArtworkCreaterModel = async (artworkCreater, start, end) => {
-  // sql 语句
-  const sql = `SELECT * FROM artwork WHERE artwork_creater LIKE '%${artworkCreater}%' AND created_time BETWEEN '${start}' AND '${end}'`
-  // 返回
-  return await query(sql)
-}
-
-// 6.3 搜索画作 -- SubTitle
-module.exports.searchArtworkSubTitleModel = async (artworkSubTitle, start, end) => {
-  // sql 语句
-  console.log(artworkSubTitle)
-  const sql = `SELECT * FROM artwork WHERE artwork_subTitle LIKE '%${artworkSubTitle}%' AND created_time BETWEEN '${start}' AND '${end}'`
-  // 返回
-  return await query(sql)
-}
